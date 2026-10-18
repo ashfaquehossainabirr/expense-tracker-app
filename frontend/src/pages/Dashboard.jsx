@@ -19,6 +19,7 @@ import {
   deleteTab as deleteTabApi,
 } from "../api/tabApi";
 import { useAuth } from "../context/AuthContext";
+import { exportTabPdf } from "../utils/exportTabPdf";
 import Sidebar from "../components/Sidebar";
 import SummaryCard from "../components/SummaryCard";
 import ExpenseList from "../components/ExpenseList";
@@ -45,6 +46,7 @@ export default function Dashboard() {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("ledger:sidebarCollapsed") === "1";
   });
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [deleteTabTarget, setDeleteTabTarget] = useState(null);
   const [deletingTab, setDeletingTab] = useState(false);
 
@@ -163,6 +165,18 @@ export default function Dashboard() {
       setError("Couldn't delete that tab. Try again.");
     } finally {
       setDeletingTab(false);
+    }
+  };
+
+  const handleSavePdf = async () => {
+    if (!activeTab || exportingPdf) return;
+    setExportingPdf(true);
+    try {
+      await exportTabPdf({ user, tab: activeTab, incomes, expenses });
+    } catch (err) {
+      setError("Couldn't generate the PDF. Try again.");
+    } finally {
+      setExportingPdf(false);
     }
   };
 
@@ -401,6 +415,17 @@ export default function Dashboard() {
           )}
 
           {!tabsLoading && !loading && !error && !showEmptyTabsState && (
+            <>
+            <div className="tab-toolbar">
+              <button
+                type="button"
+                className="stamp-button pdf"
+                onClick={handleSavePdf}
+                disabled={exportingPdf}
+              >
+                {exportingPdf ? "Preparing PDF…" : "Save PDF"}
+              </button>
+            </div>
             <div className="sections-grid">
               <section className="section-card">
                 <div className="section-header">
@@ -438,6 +463,7 @@ export default function Dashboard() {
                 />
               </section>
             </div>
+            </>
           )}
 
           <ExpenseModal

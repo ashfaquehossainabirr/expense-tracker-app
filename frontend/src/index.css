@@ -2043,3 +2043,31 @@ button {
   flex-shrink: 0;
   animation: pageLoaderSpin 0.7s linear infinite;
 }
+
+/* ---------- Save PDF (per tab) ---------- */
+
+.tab-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.stamp-button.pdf {
+  background: var(--ink, #2a2a2a);
+}
+
+.stamp-button.pdf:hover {
+  background: #000;
+}
+
+.stamp-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+  transform: none;
+}
+
+@media (max-width: 520px) {
+  .tab-toolbar .stamp-button {
+    width: 100%;
+  }
+}
